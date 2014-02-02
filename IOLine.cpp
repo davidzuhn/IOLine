@@ -117,6 +117,9 @@ int VirtualPin::digitalRead()
 ////////////////////////////////////////////////////////////////////////////////
 //
 // IOBounce implementation
+//
+// these methods are meant to be identical to the Bounce library, except
+// that they use IOLine objects for reading.
 
 IOBounce::IOBounce()
 {
