@@ -1,8 +1,10 @@
 IOLine
 ======
 
-Arduino generic I/O access library
+Arduino generalized I/O access library.  
 
+IOLine currently supports the Arduino pins, IOX I/O lines via the MCP23017,
+or virtual pins.
 
 Any object derived from IOLine supports the digitalRead() and
 digitalWrite() methods.  These methods should behave exactly as the Arduino
@@ -10,6 +12,16 @@ functions of the same name.
 
 An IOBounce interface is provided to perform debounce operations using an
 IOLine object.
+
+
+Requirements
+============
+
+This library requires the MCP23017 library found at https://github.com/davidzuhn/MCP23017
+
+
+Usage
+=====
 
 A typical usage might be:
 
