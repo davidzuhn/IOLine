@@ -19,6 +19,9 @@ Requirements
 
 This library requires the MCP23017 library found at https://github.com/davidzuhn/MCP23017
 
+The example programs make use of the Metro library for timing operations.  This is a common
+Arduino library and can be found at http://playground.arduino.cc/Code/Metro
+
 
 Usage
 =====
