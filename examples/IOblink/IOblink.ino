@@ -32,6 +32,10 @@ IOLine *outputs[] = {
 void setup()
 {
     pinMode(9, OUTPUT);
+    
+    for (int i = 0; i < outputCount; i++) {
+      outputs[i]->init();
+    }
 
     Serial.begin(9600);
 
@@ -52,7 +56,7 @@ void loop()
 
     for (int i = 0; i < outputCount; i++) {
         outputs[i]->digitalWrite(HIGH);
-        delay(50);
+        delay(250);
         outputs[i]->digitalWrite(LOW);
     }
 
