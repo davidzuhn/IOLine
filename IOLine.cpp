@@ -98,6 +98,11 @@ VirtualPin::VirtualPin(uint8_t mode)
 }
 
 
+void VirtualPin::init()
+{
+    // does not do anything
+}
+
 void VirtualPin::digitalWrite(uint8_t value)
 {
     this->value = value;
