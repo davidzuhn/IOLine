@@ -117,7 +117,7 @@ void loop()
         // so check for .read() == HIGH
 
         if (bouncers[i].update() && bouncers[i].read() == HIGH) {
-            // this is a latching button, so get the current state of the
+            // I want a latching function, so get the current state of the
             // light and change it, then set the new state
 
             uint8_t v = outputs[i]->digitalRead();
@@ -133,6 +133,6 @@ void loop()
 
     if (pilotLight.check()) {
         pilotLightState = !pilotLightState;
-	digitalWrite(PILOTLIGHT, pilotLightState ? HIGH : LOW;
+	digitalWrite(PILOTLIGHT, pilotLightState ? HIGH : LOW);
     }
 }
