@@ -31,6 +31,7 @@ class IOLine {
   public:
     virtual void digitalWrite(uint8_t value) = 0;
     virtual int digitalRead() = 0;
+    virtual int analogRead() = 0;
     virtual void init() { };
 };
 
@@ -40,6 +41,7 @@ class Pin:public IOLine {
 
     void digitalWrite(uint8_t value);
     int digitalRead();
+    int analogRead();
     void init();
 
   private:
@@ -54,6 +56,7 @@ class IOX:public IOLine {
 
     void digitalWrite(uint8_t value);
     int digitalRead();
+    int analogRead();
     void init();
 
   private:
@@ -71,6 +74,7 @@ class VirtualPin:public IOLine {
 
     void digitalWrite(uint8_t value);
     int digitalRead();
+    int analogRead();
     void init();
 
   private:
@@ -83,6 +87,7 @@ class VirtualPin:public IOLine {
 class IOBounce {
   public:
     IOBounce();
+    IOBounce(unsigned long interval);
 
     void attach(IOLine * ioline);
     void interval(unsigned long interval_millis);

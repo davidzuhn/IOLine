@@ -54,6 +54,12 @@ int Pin::digitalRead()
     return rv;
 }
 
+int Pin::analogRead()
+{
+    int rv = ::analogRead(address);
+    return rv;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -83,6 +89,11 @@ void IOX::digitalWrite(uint8_t value)
 int IOX::digitalRead()
 {
     return MCP23017.getGPIO(address, port, bit);
+}
+
+int IOX::analogRead()
+{
+    return 0;
 }
 
 
@@ -118,6 +129,11 @@ int VirtualPin::digitalRead()
     return this->value;
 }
 
+int VirtualPin::analogRead()
+{
+    return 0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -129,6 +145,11 @@ int VirtualPin::digitalRead()
 IOBounce::IOBounce()
 {
     interval_millis = 10;
+}
+
+IOBounce::IOBounce(unsigned long interval) 
+{
+    interval_millis = interval;
 }
 
 void IOBounce::attach(IOLine * ioline)
