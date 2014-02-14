@@ -34,8 +34,9 @@
 
 // 20 output lines, each on an LED for now
 IOLine *outputs[] = {
-    // Pin values are "normal" Arduino I/O lines
-    new Pin(A5, OUTPUT),
+    // Pin values are "normal" Arduino I/O lines, they're in whatever order
+    // makes sense for you, instead of what makes sense for the computer
+    new Pin(8, OUTPUT),
     new Pin(A4, OUTPUT),
     new Pin(A3, OUTPUT),
     new Pin(A2, OUTPUT),
@@ -47,19 +48,19 @@ IOLine *outputs[] = {
     new Pin(10, OUTPUT),
 
     // these next are defined in terms of the IOX i2c address (0x20-0x27), port # (0,1), and bit (0-7)
-    new IOX(IOX_ADDRESS, 0, 7, OUTPUT),
-    new IOX(IOX_ADDRESS, 0, 6, OUTPUT),
-    new IOX(IOX_ADDRESS, 0, 5, OUTPUT),
-    new IOX(IOX_ADDRESS, 0, 4, OUTPUT),
     new IOX(IOX_ADDRESS, 0, 3, OUTPUT),
     new IOX(IOX_ADDRESS, 0, 2, OUTPUT),
     new IOX(IOX_ADDRESS, 0, 1, OUTPUT),
     new IOX(IOX_ADDRESS, 0, 0, OUTPUT),
     new IOX(IOX_ADDRESS, 1, 7, OUTPUT),
-    new IOX(IOX_ADDRESS, 1, 6, OUTPUT)
+    new IOX(IOX_ADDRESS, 1, 6, OUTPUT),
+    new IOX(IOX_ADDRESS, 1, 5, OUTPUT),
+    new IOX(IOX_ADDRESS, 1, 4, OUTPUT),
+    new IOX(IOX_ADDRESS, 1, 3, OUTPUT),
+    new IOX(IOX_ADDRESS, 1, 2, OUTPUT)
 };
 
-#define outputCount (sizeof(outputs)/sizeof(outputs[0]))
+#define outputCount NELEMENTS(outputs)
 
 void setup()
 {
@@ -82,7 +83,7 @@ void loop()
      */
     for (int i = 0; i < outputCount; i++) {
         outputs[i]->digitalWrite(HIGH);
-        delay(250);
+        delay(200);
         outputs[i]->digitalWrite(LOW);
     }
 
