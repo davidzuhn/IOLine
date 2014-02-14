@@ -25,6 +25,8 @@
 #define INPUT_INVERTED        0x3
 #define INPUT_PULLUP_INVERTED 0x4
 
+#define NELEMENTS(_ar) (sizeof(_ar)/sizeof(_ar[0]))
+
 class IOLine {
   public:
     virtual void digitalWrite(uint8_t value) = 0;
