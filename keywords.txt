@@ -1,0 +1,18 @@
+IOLine     KEYWORD1
+Pin        KEYWORD1
+IOX        KEYWORD1
+VirtualPin KEYWORD1
+
+INPUT_INVERTED         KEYWORD2
+INPUT_PULLUP_INVERTED  KEYWORD2
+NELEMENTS              KEYWORD2
+digitalWrite           KEYWORD2
+digitalRead            KEYWORD2
+analogRead             KEYWORD2
+init                   KEYWORD2
+
+IOBounce  KEYWORD1
+attach    KEYWORD2
+interval  KEYWORD2
+update    KEYWORD2
+read      KEYWORD2
