@@ -33,6 +33,7 @@ class IOLine {
     virtual int digitalRead() = 0;
     virtual int analogRead() = 0;
     virtual void init() { };
+    virtual bool check() { return false; };
 };
 
 class Pin:public IOLine {
@@ -83,6 +84,28 @@ class VirtualPin:public IOLine {
 };
 
 
+class IOFlasher:public IOLine {
+ public:
+    IOFlasher(IOLine *ioLine, unsigned long interval);
+    IOFlasher(IOLine *ioLine, unsigned long interval, uint8_t initialState);
+
+    void digitalWrite(uint8_t value);
+    int digitalRead();
+    int analogRead();
+    void init();
+
+    bool check();
+    void setInterval(unsigned long interval);
+
+ private:
+    void update();
+
+    IOLine *ioLine;
+    uint8_t value;
+    uint8_t currentFlashState;
+    unsigned long previous_millis, interval_millis;
+};
+
 
 class IOBounce {
   public:
@@ -103,7 +126,5 @@ class IOBounce {
 
     IOLine *ioline;
 };
-
-
 
 #endif

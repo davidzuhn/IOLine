@@ -56,7 +56,7 @@ int Pin::digitalRead()
 
 int Pin::analogRead()
 {
-    int rv = ::analogRead(address);
+    int rv =::analogRead(address);
     return rv;
 }
 
@@ -135,6 +135,96 @@ int VirtualPin::analogRead()
 }
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// IOFlasher implementation
+//
+// an IOFlasher is built atop any other IOLine type, and implements a timed
+// flash of the light while it is in the HIGH state.  The amount of time
+// given is the interval between state changes (e.g., 500 means the light
+// is HIGH for 500ms, then LOW for 500ms, repeating).
+
+IOFlasher::IOFlasher(IOLine * ioLine, unsigned long interval)
+{
+    this->ioLine = ioLine;
+    setInterval(interval);
+    currentFlashState = HIGH;
+}
+
+
+IOFlasher::IOFlasher(IOLine * ioLine, unsigned long interval, uint8_t initialState)
+{
+    this->ioLine = ioLine;
+    setInterval(interval);
+    currentFlashState = initialState;
+}
+
+
+void IOFlasher::init()
+{
+    value = LOW;
+    previous_millis = millis();
+    if (ioLine) {
+        ioLine->init();
+    }
+}
+
+
+void IOFlasher::setInterval(unsigned long interval)
+{
+    interval_millis = interval;
+}
+
+
+void IOFlasher::digitalWrite(uint8_t value)
+{
+    this->value = value;
+    update();
+}
+
+
+void IOFlasher::update()
+{
+    if (ioLine) {
+        if (value == HIGH) {
+            previous_millis = millis();
+            ioLine->digitalWrite(currentFlashState);
+        } else {
+            ioLine->digitalWrite(LOW);
+        }
+    }
+}
+
+
+bool IOFlasher::check()
+{
+    unsigned long now = millis();
+    if (now - previous_millis >= interval_millis) {
+        previous_millis += interval_millis;
+
+        currentFlashState = (currentFlashState == HIGH) ? LOW : HIGH;
+        update();
+
+        return true;
+    }
+
+    return false;
+}
+
+
+int IOFlasher::digitalRead()
+{
+    return 0;
+}
+
+
+int IOFlasher::analogRead()
+{
+    return 0;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // IOBounce implementation
@@ -147,7 +237,7 @@ IOBounce::IOBounce()
     interval_millis = 10;
 }
 
-IOBounce::IOBounce(unsigned long interval) 
+IOBounce::IOBounce(unsigned long interval)
 {
     interval_millis = interval;
 }
