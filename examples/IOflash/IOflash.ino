@@ -30,12 +30,14 @@
 
 
 // change this to suit whatever address you have defined your IOX board as
-#define IOX_ADDRESS 0x20
+#define IOX_ADDRESS 0x24
 
 // 20 output lines, each on an LED for now
 IOLine *outputs[] = {
     // Pin values are "normal" Arduino I/O lines, they're in whatever order
     // makes sense for you, instead of what makes sense for the computer
+
+#if 0
     new IOFlasher(new Pin(A5, OUTPUT), 500),
     new IOFlasher(new Pin(A4, OUTPUT), 650),
     new IOFlasher(new Pin(A3, OUTPUT), 333),
@@ -44,28 +46,29 @@ IOLine *outputs[] = {
     new IOFlasher(new Pin(A0, OUTPUT), 500),
     new IOFlasher(new Pin(13, OUTPUT), 510),
     new IOFlasher(new Pin(12, OUTPUT), 1000),
+
     new IOFlasher(new Pin(11, OUTPUT), 2000),
     new IOFlasher(new Pin(10, OUTPUT), 5000),
+#endif
 
     new Pin(9, OUTPUT),
-    new IOFlasher(new Pin(8, OUTPUT), 500, LOW),
-    new IOFlasher(new Pin(7, OUTPUT), 500),
-    new IOFlasher(new Pin(6, OUTPUT), 500, LOW),
-    new IOFlasher(new Pin(5, OUTPUT), 500),
-    new IOFlasher(new Pin(4, OUTPUT), 500, LOW),
+    new AlternatingFlasher (new Pin(6, OUTPUT), 7, 
+			    new Pin(7, OUTPUT), 8),
 
 
     // these next are defined in terms of the IOX i2c address (0x20-0x27), port # (0,1), and bit (0-7)
-    new IOFlasher(new IOX(IOX_ADDRESS, 0, 3, OUTPUT), 500, HIGH),
-    new IOFlasher(new IOX(IOX_ADDRESS, 0, 2, OUTPUT), 500, LOW),
-    new IOFlasher(new IOX(IOX_ADDRESS, 0, 1, OUTPUT), 1000, HIGH),
-    new IOFlasher(new IOX(IOX_ADDRESS, 0, 0, OUTPUT), 1000, LOW),
-    new IOX(IOX_ADDRESS, 1, 7, OUTPUT),
-    new IOX(IOX_ADDRESS, 1, 6, OUTPUT),
-    new IOFlasher(new IOX(IOX_ADDRESS, 1, 5, OUTPUT), 333),
-    new IOFlasher(new IOX(IOX_ADDRESS, 1, 4, OUTPUT), 490),
-    new IOFlasher(new IOX(IOX_ADDRESS, 1, 3, OUTPUT), 500),
-    new IOFlasher(new IOX(IOX_ADDRESS, 1, 2, OUTPUT), 510)
+
+    new AlternatingFlasher (new IOX(IOX_ADDRESS, 1, 7, OUTPUT), 500,
+			    new IOX(IOX_ADDRESS, 1, 6, OUTPUT), 500),
+
+    new IOFlasher(new IOX(IOX_ADDRESS, 1, 5, OUTPUT), 1000, HIGH),
+#if 0
+    new IOFlasher(new IOX(IOX_ADDRESS, 1, 4, OUTPUT), 1000, LOW),
+    new IOX(IOX_ADDRESS, 1, 3, OUTPUT),
+    new IOX(IOX_ADDRESS, 1, 2, OUTPUT),
+    new IOFlasher(new IOX(IOX_ADDRESS, 1, 1, OUTPUT), 333),
+    new IOFlasher(new IOX(IOX_ADDRESS, 1, 0, OUTPUT), 490),
+#endif
 };
 
 #define outputCount NELEMENTS(outputs)
@@ -74,26 +77,34 @@ void setup()
 {
     Serial.begin(9600);
     while (!Serial);
+    delay(3000);
 
+    Serial.print("number of outputs: "); Serial.println(outputCount);
 
-
-    // set the mode on the pilot light
-    pinMode(9, OUTPUT);
 
     // set the mode for each of the IOLine outputs
     for (int i = 0; i < outputCount; i++) {
         outputs[i]->init();
         outputs[i]->digitalWrite(HIGH);
     }
+    
+    Serial.println("setup complete");
 }
-
+ 
 int pilot_light_state = 1;
 
 
+ int count = 0;
 int nextLightToCheck = 0;
 
 void loop()
 {
+    if (count % 100 == 0) {
+	Serial.print("iteration: "); Serial.println(count);
+    }
+
     outputs[nextLightToCheck]->check();
     nextLightToCheck = (nextLightToCheck + 1) % outputCount;
+
+    count+=1;
 }

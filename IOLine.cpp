@@ -33,12 +33,19 @@ Pin::Pin(uint8_t address, uint8_t mode)
 
 void Pin::init()
 {
-    pinMode(address, mode);
+    uint8_t m = mode;
+    if (mode == OUTPUT_INVERTED) {
+	m = OUTPUT;
+    }
+    pinMode(address, m);
 }
 
 
 void Pin::digitalWrite(uint8_t value)
 {
+    if (mode == OUTPUT_INVERTED) {
+	value = (value == LOW) ? HIGH : LOW;
+    }
     ::digitalWrite(address, value);
 }
 
@@ -76,12 +83,19 @@ IOX::IOX(uint8_t address, uint8_t port, uint8_t bit, uint8_t mode)
 
 void IOX::init()
 {
-    MCP23017.setMode(address, port, bit, mode);
+    uint8_t m = mode;
+    if (mode == OUTPUT_INVERTED) {
+	m = OUTPUT;
+    }
+    MCP23017.setMode(address, port, bit, m);
 }
 
 
 void IOX::digitalWrite(uint8_t value)
 {
+    if (mode == OUTPUT_INVERTED) {
+	value == LOW ? HIGH : LOW;
+    }
     MCP23017.setGPIO(address, port, bit, value);
 }
 
@@ -116,6 +130,9 @@ void VirtualPin::init()
 
 void VirtualPin::digitalWrite(uint8_t value)
 {
+    if (mode == OUTPUT_INVERTED) {
+	value = (value == LOW) ? HIGH : LOW;
+    }
     this->value = value;
 }
 
@@ -190,7 +207,8 @@ void IOFlasher::update()
         if (value == HIGH) {
             previous_millis = millis();
             ioLine->digitalWrite(currentFlashState);
-        } else {
+        } 
+	else {
             ioLine->digitalWrite(LOW);
         }
     }
@@ -223,6 +241,102 @@ int IOFlasher::analogRead()
 {
     return 0;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// AlternatingFlasher implementation
+//
+
+AlternatingFlasher::AlternatingFlasher(IOLine *io1, unsigned long interval1, IOLine *io2, unsigned long interval2)
+{
+    this->ioLine1 = io1;
+    this->ioLine2 = io2;
+
+    currentFlashState = LOW;
+    currentFlashIO = 1;
+
+    setInterval1(interval1);
+    setInterval2(interval2);
+}
+
+void AlternatingFlasher::init()
+{
+    if (ioLine1 && ioLine2) {
+	ioLine1->init();
+	ioLine2->init();
+    }
+}
+
+void AlternatingFlasher::setInterval1(unsigned long interval)
+{
+    this->interval1 = interval;
+}
+
+
+void AlternatingFlasher::setInterval2(unsigned long interval)
+{
+    this->interval2 = interval;
+}
+
+void AlternatingFlasher::digitalWrite(uint8_t value)
+{
+    this->value = value;
+    update();
+}
+
+int AlternatingFlasher::digitalRead()
+{
+    return value;
+}
+
+int AlternatingFlasher::analogRead()
+{
+    return 0;
+}
+
+void AlternatingFlasher::update()
+{
+    if (ioLine1 && ioLine2) {
+        if (value == HIGH) {
+            previous_millis = millis();
+	    if (currentFlashIO == 1) {
+		ioLine1->digitalWrite(currentFlashState);
+		ioLine2->digitalWrite(LOW);
+		currentInterval = interval1;
+	    }
+	    else {
+		ioLine2->digitalWrite(currentFlashState);
+		ioLine1->digitalWrite(LOW);
+		currentInterval = interval2;
+	    }
+        } 
+	else {
+            ioLine1->digitalWrite(LOW);
+            ioLine2->digitalWrite(LOW);
+        }
+    }
+}
+
+bool AlternatingFlasher::check() 
+{
+    unsigned long now = millis();
+
+	Serial.print("interval expected: "); Serial.println(currentInterval);
+	Serial.print("  actual: "); Serial.println(now - previous_millis);
+
+    if (now - previous_millis >= currentInterval) {
+	currentFlashIO = (currentFlashIO == 1) ? 2 : 1;
+
+	update();
+
+	return true;
+    }
+
+    return false;
+}
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +385,8 @@ bool IOBounce::update()
 
     if (currentState != unstableState) {
         previous_millis = millis();
-    } else if (millis() - previous_millis >= interval_millis) {
+    } 
+    else if ((millis() - previous_millis) >= interval_millis) {
         if (currentState != debouncedState) {
             debouncedState = currentState;
             stateChanged = true;

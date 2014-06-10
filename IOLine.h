@@ -24,6 +24,7 @@
 // occasionally check to see if Arduino defines any other pin modes
 #define INPUT_INVERTED        0x3
 #define INPUT_PULLUP_INVERTED 0x4
+#define OUTPUT_INVERTED       0x5
 
 #define NELEMENTS(_ar) (sizeof(_ar)/sizeof(_ar[0]))
 
@@ -104,6 +105,35 @@ class IOFlasher:public IOLine {
     uint8_t value;
     uint8_t currentFlashState;
     unsigned long previous_millis, interval_millis;
+};
+
+
+class AlternatingFlasher:public IOLine {
+ public:
+    AlternatingFlasher(IOLine *io1, unsigned long interval1, IOLine *io2, unsigned long interval2);
+
+    void digitalWrite(uint8_t value);
+    int digitalRead();
+    int analogRead();
+    void init();
+
+    bool check();
+    void setInterval1(unsigned long interval);
+    void setInterval2(unsigned long interval);
+
+    
+ private:
+    void update();
+
+    IOLine *ioLine1;
+    IOLine *ioLine2;
+    unsigned long interval1;
+    unsigned long interval2;
+    uint8_t value;
+    uint8_t currentFlashState;
+    uint8_t currentFlashIO;
+    unsigned long previous_millis;
+    unsigned long currentInterval;
 };
 
 
