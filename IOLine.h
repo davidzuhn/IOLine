@@ -1,10 +1,17 @@
-/*
+/* -*- c++ -*-
  * IOLine implements a generic interface to multiple types of I/O lines
  *
  * Currently implemented I/O line types include Arduino pins (D0-D13,
  * A0-A5, etc), MCP23017 based IOX lines (attached via I2C interface),
  * and virtual lines that have no electronic interface but have a local 
  * state maintained in software.
+ *
+ * Several "effect" IOLines are also defined:  
+ *   IOFlasher will flash a specified IOLine at a given interval
+ *   AlternatingFlasher will switch two lines at a specifie interval
+ *   IOChase will run a chase light along a list of IOLines
+ *
+ * These effect IOLines take "real" IOLines as configured parameters
  *
  * Copyright 2013, 2014 by david d zuhn <zoo@whitepineroute.org>
  *
@@ -21,6 +28,11 @@
 
 #include "Arduino.h"
 
+
+#ifndef IOLINE_USES_IOX
+#define IOLINE_USES_IOX 0
+#endif
+
 // occasionally check to see if Arduino defines any other pin modes
 #define INPUT_INVERTED        0x3
 #define INPUT_PULLUP_INVERTED 0x4
@@ -33,8 +45,11 @@ class IOLine {
     virtual void digitalWrite(uint8_t value) = 0;
     virtual int digitalRead() = 0;
     virtual int analogRead() = 0;
-    virtual void init() { };
-    virtual bool check() { return false; };
+    virtual void init() {
+    };
+    virtual bool check() {
+        return false;
+    };
 };
 
 class Pin:public IOLine {
@@ -51,7 +66,7 @@ class Pin:public IOLine {
     uint8_t address;
 };
 
-
+#if IOLINE_USES_IOX
 class IOX:public IOLine {
   public:
     IOX(uint8_t address, uint8_t port, uint8_t bit, uint8_t mode);
@@ -67,7 +82,7 @@ class IOX:public IOLine {
     uint8_t bit;
     uint8_t mode;
 };
-
+#endif
 
 
 class VirtualPin:public IOLine {
@@ -86,9 +101,9 @@ class VirtualPin:public IOLine {
 
 
 class IOFlasher:public IOLine {
- public:
-    IOFlasher(IOLine *ioLine, unsigned long interval);
-    IOFlasher(IOLine *ioLine, unsigned long interval, uint8_t initialState);
+  public:
+    IOFlasher(IOLine * ioLine, unsigned long interval);
+     IOFlasher(IOLine * ioLine, unsigned long interval, uint8_t initialState);
 
     void digitalWrite(uint8_t value);
     int digitalRead();
@@ -98,7 +113,7 @@ class IOFlasher:public IOLine {
     bool check();
     void setInterval(unsigned long interval);
 
- private:
+  private:
     void update();
 
     IOLine *ioLine;
@@ -109,8 +124,9 @@ class IOFlasher:public IOLine {
 
 
 class AlternatingFlasher:public IOLine {
- public:
-    AlternatingFlasher(IOLine *io1, unsigned long interval1, IOLine *io2, unsigned long interval2);
+  public:
+    AlternatingFlasher(IOLine * io1, unsigned long interval1, IOLine * io2,
+                       unsigned long interval2);
 
     void digitalWrite(uint8_t value);
     int digitalRead();
@@ -121,8 +137,8 @@ class AlternatingFlasher:public IOLine {
     void setInterval1(unsigned long interval);
     void setInterval2(unsigned long interval);
 
-    
- private:
+
+  private:
     void update();
 
     IOLine *ioLine1;
@@ -131,7 +147,7 @@ class AlternatingFlasher:public IOLine {
     unsigned long interval2;
     uint8_t value;
     uint8_t currentFlashState;
-    uint8_t currentFlashIO;
+    uint8_t currentFlashIOLine;
     unsigned long previous_millis;
     unsigned long currentInterval;
 };
@@ -144,6 +160,7 @@ class IOBounce {
 
     void attach(IOLine * ioline);
     void interval(unsigned long interval_millis);
+    unsigned long getChangeTime();
     bool update();
     uint8_t read();
 
@@ -153,8 +170,35 @@ class IOBounce {
     uint8_t debouncedState;
     uint8_t unstableState;
     uint8_t stateChanged;
+    unsigned long changeTime;
 
     IOLine *ioline;
 };
+
+class IOChase:public IOLine {
+  public:
+    IOChase(IOLine ** iolines, unsigned int ioCount, unsigned long interval);
+
+    void digitalWrite(uint8_t value);
+    int digitalRead();
+    int analogRead();
+    void init();
+
+    bool check();
+    void setInterval(unsigned long interval);
+
+
+  private:
+    void update();
+
+    IOLine **outputs;
+    unsigned int outputCount;
+
+    unsigned long interval_millis;
+    uint8_t value;
+    unsigned int nextLight;
+    unsigned long previous_millis;
+};
+
 
 #endif

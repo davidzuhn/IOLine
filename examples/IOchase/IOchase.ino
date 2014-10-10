@@ -43,16 +43,16 @@ IOChase *chaser = NULL;
 
 void setup()
 {
-    chaser = new IOChase(outputs,  outputCount, 20);
+    chaser = new IOChase(outputs, outputCount, 20);
     if (chaser != NULL) {
-      chaser->init();
-      chaser->digitalWrite(HIGH);
+        chaser->init();
+        chaser->digitalWrite(HIGH);
     }
 }
 
 void loop()
 {
     if (chaser != NULL) {
-	chaser->check();
-    }  
+        chaser->check();
+    }
 }

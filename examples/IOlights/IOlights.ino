@@ -24,8 +24,8 @@
  * You may use this work for any purposes, provided that you make your
  * version available to anyone else.  
  */
-#include <Wire.h>
-#include <MCP23017.h>
+
+#define IOLINE_USES_IOX 1
 #include <IOLine.h>
 #include <Metro.h>
 
@@ -53,9 +53,9 @@ IOLine *inputs[] = {
     new Pin(5, INPUT_PULLUP),
     new Pin(4, INPUT_PULLUP),
 
-    new IOX(IOX_ADDRESS, 1, 5, INPUT_PULLUP),  // note that these are the rest of the bits on port 1
-    new IOX(IOX_ADDRESS, 1, 4, INPUT_PULLUP),  // bits are individually configured as IN or OUT, not a 
-    new IOX(IOX_ADDRESS, 1, 3, INPUT_PULLUP),  // whole port at a time
+    new IOX(IOX_ADDRESS, 1, 5, INPUT_PULLUP),   // note that these are the rest of the bits on port 1
+    new IOX(IOX_ADDRESS, 1, 4, INPUT_PULLUP),   // bits are individually configured as IN or OUT, not a 
+    new IOX(IOX_ADDRESS, 1, 3, INPUT_PULLUP),   // whole port at a time
     new IOX(IOX_ADDRESS, 1, 2, INPUT_PULLUP),
     new IOX(IOX_ADDRESS, 1, 1, INPUT_PULLUP),
     new IOX(IOX_ADDRESS, 1, 0, INPUT_PULLUP)
@@ -112,8 +112,8 @@ void loop()
 
     for (int i = 0; i < inputCount; i++) {
 
-	// .update() returns true when a change occurs and we only care
-	// about when the button is pressed, not when it's released
+        // .update() returns true when a change occurs and we only care
+        // about when the button is pressed, not when it's released
         // so check for .read() == HIGH
 
         if (bouncers[i].update() && bouncers[i].read() == HIGH) {
@@ -133,6 +133,6 @@ void loop()
 
     if (pilotLight.check()) {
         pilotLightState = !pilotLightState;
-	digitalWrite(PILOTLIGHT, pilotLightState ? HIGH : LOW);
+        digitalWrite(PILOTLIGHT, pilotLightState ? HIGH : LOW);
     }
 }

@@ -17,7 +17,10 @@
  */
 
 #include "IOLine.h"
+
+#if IOLINE_USES_IOX
 #include "MCP23017.h"
+#endif
 
 #include "Arduino.h"
 
@@ -35,20 +38,18 @@ void Pin::init()
 {
     uint8_t m = mode;
     if (mode == OUTPUT_INVERTED) {
-	m = OUTPUT;
+        m = OUTPUT;
     }
     pinMode(address, m);
 }
 
-
 void Pin::digitalWrite(uint8_t value)
 {
     if (mode == OUTPUT_INVERTED) {
-	value = (value == LOW) ? HIGH : LOW;
+        value = (value == LOW) ? HIGH : LOW;
     }
     ::digitalWrite(address, value);
 }
-
 
 int Pin::digitalRead()
 {
@@ -67,7 +68,7 @@ int Pin::analogRead()
     return rv;
 }
 
-
+#if IOLINE_USES_IOX
 ////////////////////////////////////////////////////////////////////////////////
 //
 // IOX Implementation
@@ -80,25 +81,22 @@ IOX::IOX(uint8_t address, uint8_t port, uint8_t bit, uint8_t mode)
     this->mode = mode;
 }
 
-
 void IOX::init()
 {
     uint8_t m = mode;
     if (mode == OUTPUT_INVERTED) {
-	m = OUTPUT;
+        m = OUTPUT;
     }
     MCP23017.setMode(address, port, bit, m);
 }
 
-
 void IOX::digitalWrite(uint8_t value)
 {
     if (mode == OUTPUT_INVERTED) {
-	value == LOW ? HIGH : LOW;
+        value == LOW ? HIGH : LOW;
     }
     MCP23017.setGPIO(address, port, bit, value);
 }
-
 
 int IOX::digitalRead()
 {
@@ -109,8 +107,7 @@ int IOX::analogRead()
 {
     return 0;
 }
-
-
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -122,7 +119,6 @@ VirtualPin::VirtualPin(uint8_t mode)
     this->value = 0;
 }
 
-
 void VirtualPin::init()
 {
     // does not do anything
@@ -131,11 +127,10 @@ void VirtualPin::init()
 void VirtualPin::digitalWrite(uint8_t value)
 {
     if (mode == OUTPUT_INVERTED) {
-	value = (value == LOW) ? HIGH : LOW;
+        value = (value == LOW) ? HIGH : LOW;
     }
     this->value = value;
 }
-
 
 int VirtualPin::digitalRead()
 {
@@ -150,8 +145,6 @@ int VirtualPin::analogRead()
 {
     return 0;
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -169,14 +162,12 @@ IOFlasher::IOFlasher(IOLine * ioLine, unsigned long interval)
     currentFlashState = HIGH;
 }
 
-
 IOFlasher::IOFlasher(IOLine * ioLine, unsigned long interval, uint8_t initialState)
 {
     this->ioLine = ioLine;
     setInterval(interval);
     currentFlashState = initialState;
 }
-
 
 void IOFlasher::init()
 {
@@ -187,12 +178,10 @@ void IOFlasher::init()
     }
 }
 
-
 void IOFlasher::setInterval(unsigned long interval)
 {
     interval_millis = interval;
 }
-
 
 void IOFlasher::digitalWrite(uint8_t value)
 {
@@ -200,20 +189,17 @@ void IOFlasher::digitalWrite(uint8_t value)
     update();
 }
 
-
 void IOFlasher::update()
 {
     if (ioLine) {
         if (value == HIGH) {
             previous_millis = millis();
             ioLine->digitalWrite(currentFlashState);
-        } 
-	else {
+        } else {
             ioLine->digitalWrite(LOW);
         }
     }
 }
-
 
 bool IOFlasher::check()
 {
@@ -230,31 +216,29 @@ bool IOFlasher::check()
     return false;
 }
 
-
 int IOFlasher::digitalRead()
 {
     return 0;
 }
-
 
 int IOFlasher::analogRead()
 {
     return 0;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // AlternatingFlasher implementation
 //
 
-AlternatingFlasher::AlternatingFlasher(IOLine *io1, unsigned long interval1, IOLine *io2, unsigned long interval2)
+AlternatingFlasher::AlternatingFlasher(IOLine * io1, unsigned long interval1,
+                                       IOLine * io2, unsigned long interval2)
 {
     this->ioLine1 = io1;
     this->ioLine2 = io2;
 
     currentFlashState = LOW;
-    currentFlashIO = 1;
+    currentFlashIOLine = 1;
 
     setInterval1(interval1);
     setInterval2(interval2);
@@ -263,8 +247,8 @@ AlternatingFlasher::AlternatingFlasher(IOLine *io1, unsigned long interval1, IOL
 void AlternatingFlasher::init()
 {
     if (ioLine1 && ioLine2) {
-	ioLine1->init();
-	ioLine2->init();
+        ioLine1->init();
+        ioLine2->init();
     }
 }
 
@@ -272,7 +256,6 @@ void AlternatingFlasher::setInterval1(unsigned long interval)
 {
     this->interval1 = interval;
 }
-
 
 void AlternatingFlasher::setInterval2(unsigned long interval)
 {
@@ -300,44 +283,34 @@ void AlternatingFlasher::update()
     if (ioLine1 && ioLine2) {
         if (value == HIGH) {
             previous_millis = millis();
-	    if (currentFlashIO == 1) {
-		ioLine1->digitalWrite(currentFlashState);
-		ioLine2->digitalWrite(LOW);
-		currentInterval = interval1;
-	    }
-	    else {
-		ioLine2->digitalWrite(currentFlashState);
-		ioLine1->digitalWrite(LOW);
-		currentInterval = interval2;
-	    }
-        } 
-	else {
+            if (currentFlashIOLine == 1) {
+                ioLine1->digitalWrite(currentFlashState);
+                ioLine2->digitalWrite(LOW);
+                currentInterval = interval1;
+            } else {
+                ioLine2->digitalWrite(currentFlashState);
+                ioLine1->digitalWrite(LOW);
+                currentInterval = interval2;
+            }
+        } else {
             ioLine1->digitalWrite(LOW);
             ioLine2->digitalWrite(LOW);
         }
     }
 }
 
-bool AlternatingFlasher::check() 
+bool AlternatingFlasher::check()
 {
     unsigned long now = millis();
 
-	Serial.print("interval expected: "); Serial.println(currentInterval);
-	Serial.print("  actual: "); Serial.println(now - previous_millis);
-
     if (now - previous_millis >= currentInterval) {
-	currentFlashIO = (currentFlashIO == 1) ? 2 : 1;
-
-	update();
-
-	return true;
+        currentFlashIOLine = (currentFlashIOLine == 1) ? 2 : 1;
+        update();
+        return true;
     }
 
     return false;
 }
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -366,39 +339,113 @@ void IOBounce::attach(IOLine * ioline)
     }
 }
 
-
 void IOBounce::interval(unsigned long interval_millis)
 {
     this->interval_millis = interval_millis;
 }
 
-
 bool IOBounce::update()
 {
     uint8_t currentState = false;
 
-    if (ioline) {
+    if (ioline != NULL) {
         currentState = ioline->digitalRead();
-    }
 
-    stateChanged = false;
+        stateChanged = false;
 
-    if (currentState != unstableState) {
-        previous_millis = millis();
-    } 
-    else if ((millis() - previous_millis) >= interval_millis) {
-        if (currentState != debouncedState) {
-            debouncedState = currentState;
-            stateChanged = true;
+        if (currentState != unstableState) {
+            previous_millis = millis();
+        } else if ((millis() - previous_millis) >= interval_millis) {
+            if (currentState != debouncedState) {
+                debouncedState = currentState;
+                stateChanged = true;
+            }
         }
-    }
 
-    unstableState = currentState;
+        unstableState = currentState;
+    }
     return stateChanged;
 }
-
 
 uint8_t IOBounce::read()
 {
     return debouncedState;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// IOChase implementation
+//
+
+IOChase::IOChase(IOLine * outputs[], unsigned int outputCount, unsigned long interval)
+{
+    this->outputs = outputs;
+    this->outputCount = outputCount;
+    setInterval(interval);
+    nextLight = outputCount - 1;        // set to the last light, so the next one to light will be index 0
+
+}
+
+void IOChase::init()
+{
+    value = LOW;
+    previous_millis = millis();
+
+    if (outputs != NULL) {
+        for (unsigned int i = 0; i < outputCount; i++) {
+            if (outputs[i] != NULL) {
+                outputs[i]->init();
+                outputs[i]->digitalWrite(value);
+            }
+        }
+    }
+}
+
+void IOChase::setInterval(unsigned long interval)
+{
+    interval_millis = interval;
+}
+
+void IOChase::update()
+{
+    if (outputs != NULL) {
+        if (outputs[nextLight] != NULL) {
+            outputs[nextLight]->digitalWrite(LOW);
+        }
+        if (value == HIGH) {
+            nextLight = (nextLight + 1) % outputCount;
+            if (outputs[nextLight] != NULL) {
+                outputs[nextLight]->digitalWrite(HIGH);
+            }
+        }
+    }
+}
+
+bool IOChase::check()
+{
+    unsigned long now = millis();
+    if (now - previous_millis >= interval_millis) {
+        previous_millis += interval_millis;
+        update();
+        return true;
+    }
+
+    return false;
+}
+
+void IOChase::digitalWrite(uint8_t value)
+{
+    this->value = value;
+    update();
+
+}
+
+int IOChase::digitalRead()
+{
+    return 0;
+}
+
+int IOChase::analogRead()
+{
+    return 0;
 }

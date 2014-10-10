@@ -11,8 +11,8 @@
  * You may use this work for any purposes, provided that you make your
  * version available to anyone else.
  */
-#include <Wire.h>
-#include <MCP23017.h>
+
+#define IOLINE_USES_IOX 1
 #include <IOLine.h>
 #include <Metro.h>
 

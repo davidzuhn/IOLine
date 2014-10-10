@@ -24,8 +24,7 @@
  *
  */
 
-#include <Wire.h>
-#include <MCP23017.h>
+#define IOLINE_USES_IOX 1
 #include <IOLine.h>
 
 
@@ -66,10 +65,10 @@ void setup()
 {
     // set the mode on the pilot light
     pinMode(9, OUTPUT);
-    
+
     // set the mode for each of the IOLine outputs
     for (int i = 0; i < outputCount; i++) {
-      outputs[i]->init();
+        outputs[i]->init();
     }
 }
 

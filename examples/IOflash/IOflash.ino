@@ -24,8 +24,7 @@
  *
  */
 
-#include "Wire.h"
-#include "MCP23017.h"
+#include IOLINE_USES_IOX 1
 #include "IOLine.h"
 
 
@@ -53,13 +52,13 @@ IOLine *outputs[] = {
 
     new Pin(9, OUTPUT),
     new AlternatingFlasher (new Pin(6, OUTPUT), 7, 
-			    new Pin(7, OUTPUT), 8),
+                            new Pin(7, OUTPUT), 8),
 
 
     // these next are defined in terms of the IOX i2c address (0x20-0x27), port # (0,1), and bit (0-7)
 
     new AlternatingFlasher (new IOX(IOX_ADDRESS, 1, 7, OUTPUT), 500,
-			    new IOX(IOX_ADDRESS, 1, 6, OUTPUT), 500),
+                            new IOX(IOX_ADDRESS, 1, 6, OUTPUT), 500),
 
     new IOFlasher(new IOX(IOX_ADDRESS, 1, 5, OUTPUT), 1000, HIGH),
 #if 0
@@ -100,7 +99,7 @@ int nextLightToCheck = 0;
 void loop()
 {
     if (count % 100 == 0) {
-	Serial.print("iteration: "); Serial.println(count);
+        Serial.print("iteration: "); Serial.println(count);
     }
 
     outputs[nextLightToCheck]->check();
