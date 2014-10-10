@@ -175,9 +175,11 @@ class IOBounce {
     IOLine *ioline;
 };
 
+
 class IOChase:public IOLine {
   public:
     IOChase(IOLine ** iolines, unsigned int ioCount, unsigned long interval);
+    IOChase(IOLine ** iolines, unsigned int ioCount, unsigned long interval, unsigned int maxtail);
 
     void digitalWrite(uint8_t value);
     int digitalRead();
@@ -193,6 +195,10 @@ class IOChase:public IOLine {
 
     IOLine **outputs;
     unsigned int outputCount;
+
+    unsigned int head;
+    unsigned int tail;
+    unsigned int maxtail;
 
     unsigned long interval_millis;
     uint8_t value;

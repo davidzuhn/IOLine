@@ -383,13 +383,25 @@ IOChase::IOChase(IOLine * outputs[], unsigned int outputCount, unsigned long int
     this->outputCount = outputCount;
     setInterval(interval);
     nextLight = outputCount - 1;        // set to the last light, so the next one to light will be index 0
+    maxtail = 1;
+}
 
+
+IOChase::IOChase(IOLine * outputs[], unsigned int outputCount, unsigned long interval,
+                 unsigned int maxtail)
+{
+    this->outputs = outputs;
+    this->outputCount = outputCount;
+    setInterval(interval);
+    nextLight = outputCount - 1;        // set to the last light, so the next one to light will be index 0
+    this->maxtail = maxtail;
 }
 
 void IOChase::init()
 {
     value = LOW;
     previous_millis = millis();
+    head = tail = 0;
 
     if (outputs != NULL) {
         for (unsigned int i = 0; i < outputCount; i++) {
@@ -408,14 +420,32 @@ void IOChase::setInterval(unsigned long interval)
 
 void IOChase::update()
 {
-    if (outputs != NULL) {
-        if (outputs[nextLight] != NULL) {
-            outputs[nextLight]->digitalWrite(LOW);
+    if (value == HIGH) {
+        if (outputs[head % outputCount] != NULL) {
+            outputs[head % outputCount]->digitalWrite(HIGH);
         }
-        if (value == HIGH) {
-            nextLight = (nextLight + 1) % outputCount;
-            if (outputs[nextLight] != NULL) {
-                outputs[nextLight]->digitalWrite(HIGH);
+
+        if ((head - tail) >= maxtail) {
+            if (tail >= 0) {
+                if (outputs[tail] != NULL) {
+                    outputs[tail]->digitalWrite(LOW);
+                }
+                tail += 1;
+            }
+        }
+
+        if (tail == outputCount) {
+            head = maxtail - 1;
+            tail = 0;
+        }
+
+        head += 1;
+    } else {
+        if (outputs != NULL) {
+            for (int i = 0; i < outputCount; i++) {
+                if (outputs[i] != NULL) {
+                    outputs[i]->digitalWrite(LOW);
+                }
             }
         }
     }
@@ -437,7 +467,6 @@ void IOChase::digitalWrite(uint8_t value)
 {
     this->value = value;
     update();
-
 }
 
 int IOChase::digitalRead()

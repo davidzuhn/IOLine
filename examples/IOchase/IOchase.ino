@@ -43,7 +43,7 @@ IOChase *chaser = NULL;
 
 void setup()
 {
-    chaser = new IOChase(outputs, outputCount, 20);
+    chaser = new IOChase(outputs, outputCount, 50, 3);
     if (chaser != NULL) {
         chaser->init();
         chaser->digitalWrite(HIGH);
