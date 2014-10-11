@@ -237,7 +237,6 @@ AlternatingFlasher::AlternatingFlasher(IOLine * io1, unsigned long interval1,
     this->ioLine1 = io1;
     this->ioLine2 = io2;
 
-    currentFlashState = LOW;
     currentFlashIOLine = 1;
 
     setInterval1(interval1);
@@ -284,11 +283,11 @@ void AlternatingFlasher::update()
         if (value == HIGH) {
             previous_millis = millis();
             if (currentFlashIOLine == 1) {
-                ioLine1->digitalWrite(currentFlashState);
+                ioLine1->digitalWrite(HIGH);
                 ioLine2->digitalWrite(LOW);
                 currentInterval = interval1;
             } else {
-                ioLine2->digitalWrite(currentFlashState);
+                ioLine2->digitalWrite(HIGH);
                 ioLine1->digitalWrite(LOW);
                 currentInterval = interval2;
             }
@@ -434,6 +433,7 @@ void IOChase::update()
             }
         }
 
+	// reset back into the range 0..outputCount
         if (tail == outputCount) {
             head = maxtail - 1;
             tail = 0;
@@ -478,3 +478,55 @@ int IOChase::analogRead()
 {
     return 0;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// IOGroup implementation
+//
+
+IOGroup::IOGroup (IOLine **ioLines, unsigned int ioCount)
+{
+    this->ioLines = ioLines;
+    this->ioCount = ioCount;
+}
+
+
+void IOGroup::init()
+{
+    if (ioLines != NULL) {
+	for (int i=0; i < ioCount; i++) {
+	    if (ioLines[i] != NULL) {
+		ioLines[i]->init();
+	    }
+	}
+    }
+}
+
+void IOGroup::digitalWrite(uint8_t value)
+{
+    if (ioLines != NULL) {
+	for (int i=0; i < ioCount; i++) {
+	    if (ioLines[i] != NULL) {
+		ioLines[i]->digitalWrite(value);
+	    }
+	}
+    }
+}
+
+bool IOGroup::check()
+{
+    bool value = false;
+    if (ioLines != NULL) {
+	for (int i=0; i < ioCount; i++) {
+	    if (ioLines[i] != NULL) {
+		if (ioLines[i]->check()) {
+		    value = true;
+		}
+	    }
+	}
+    }
+
+    return value;
+}
+

@@ -146,7 +146,6 @@ class AlternatingFlasher:public IOLine {
     unsigned long interval1;
     unsigned long interval2;
     uint8_t value;
-    uint8_t currentFlashState;
     uint8_t currentFlashIOLine;
     unsigned long previous_millis;
     unsigned long currentInterval;
@@ -204,6 +203,24 @@ class IOChase:public IOLine {
     uint8_t value;
     unsigned int nextLight;
     unsigned long previous_millis;
+};
+
+
+
+class IOGroup:public IOLine {
+public:
+    IOGroup(IOLine **iolines, unsigned int ioCount);
+
+    void digitalWrite(uint8_t value);
+    int digitalRead() { return 0; };
+    int analogRead() { return 0; }
+    void init();
+
+    bool check();
+
+private:
+    IOLine **ioLines;
+    unsigned int ioCount;
 };
 
 
