@@ -49,8 +49,6 @@ AlternatingFlasher *flasher;
 
 void setup()
 {
-    Serial.begin(9600);
-    Serial.println("start of setup");
     group1 = new IOGroup(output1, outputCount1);
     group2 = new IOGroup(output2, outputCount2);
     if (group1 != NULL && group2 != NULL) {
@@ -60,7 +58,6 @@ void setup()
             flasher->digitalWrite(HIGH);
         }
     }
-    Serial.println("end of setup");
 }
 
 void loop()
