@@ -46,15 +46,12 @@ such as Pin objects use).
 Requirements
 ============
 
-This library can make use of the MCP23017 library found at https://github.com/davidzuhn/MCP23017
+This library uses the MCP23017 library found at https://github.com/davidzuhn/MCP23017
 
-    #define IOLINE_USES_IOX 1
-    #include <IOLine.h>
+The MCP23017 library uses the Wire module from Arduino, which uses the I2C pins from
+your Arduino 
 
-will enable the IOX class support, which uses the Arduino Wire library and
-the i2c communications pins on your Arduino board.
-
-The example programs make use of the Metro library for timing operations.  This is a common
+Some of the example programs make use of the Metro library for timing operations.  This is a common
 Arduino library and can be found at http://playground.arduino.cc/Code/Metro
 
 
@@ -63,8 +60,10 @@ Usage
 
 A typical usage might be:
 
-    #define IOLINE_USES_IOX 1
-    #include <IOLine.h>
+
+    #include "Wire.h"
+    #include "MCP23017.h"
+    #include "IOLine.h"
 
     IOLine *outputs = {
       new Pin(4, OUTPUT),
@@ -84,9 +83,8 @@ A typical usage might be:
 	}
 
 
-	void loop() {
+    void loop() {
       // now use them
-
       outputs[0]->digitalWrite(HIGH);
       int val = inputs[1]->digitalRead();
     }

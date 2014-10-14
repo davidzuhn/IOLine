@@ -26,12 +26,12 @@
 #ifndef __ioline_h
 #define __ioline_h
 
+#ifndef IOLINE_NO_MCP23017
+#include "MCP23017.h"
+#endif
+
 #include "Arduino.h"
 
-
-#ifndef IOLINE_USES_IOX
-#define IOLINE_USES_IOX 0
-#endif
 
 // occasionally check to see if Arduino defines any other pin modes
 #define INPUT_INVERTED        0x3
@@ -66,7 +66,7 @@ class Pin:public IOLine {
     uint8_t address;
 };
 
-#if IOLINE_USES_IOX
+
 class IOX:public IOLine {
   public:
     IOX(uint8_t address, uint8_t port, uint8_t bit, uint8_t mode);
@@ -82,7 +82,6 @@ class IOX:public IOLine {
     uint8_t bit;
     uint8_t mode;
 };
-#endif
 
 
 class VirtualPin:public IOLine {

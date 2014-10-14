@@ -10,7 +10,6 @@
  *
  */
 
-#define IOLINE_USES_IOX 0
 #include <IOLine.h>
 
 

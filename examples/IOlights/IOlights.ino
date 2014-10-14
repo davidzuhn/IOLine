@@ -25,7 +25,6 @@
  * version available to anyone else.  
  */
 
-#define IOLINE_USES_IOX 1
 #include <IOLine.h>
 #include <Metro.h>
 

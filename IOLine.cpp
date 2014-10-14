@@ -18,9 +18,7 @@
 
 #include "IOLine.h"
 
-#if IOLINE_USES_IOX
 #include "MCP23017.h"
-#endif
 
 #include "Arduino.h"
 
@@ -68,7 +66,6 @@ int Pin::analogRead()
     return rv;
 }
 
-#if IOLINE_USES_IOX
 ////////////////////////////////////////////////////////////////////////////////
 //
 // IOX Implementation
@@ -107,7 +104,6 @@ int IOX::analogRead()
 {
     return 0;
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //

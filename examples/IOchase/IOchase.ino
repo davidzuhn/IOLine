@@ -10,9 +10,9 @@
  *
  */
 
-#define IOLINE_USES_IOX 0
-#include <IOLine.h>
-
+#include "Wire.h"
+#include "MCP23017.h"
+#include "IOLine.h"
 
 // Use all of the Arduino pins except for the serial console lines (0, 1)
 
@@ -43,7 +43,7 @@ IOChase *chaser = NULL;
 
 void setup()
 {
-    chaser = new IOChase(outputs, outputCount, 50, 3);
+    chaser = new IOChase(outputs, outputCount, (1000 / outputCount), 3);
     if (chaser != NULL) {
         chaser->init();
         chaser->digitalWrite(HIGH);

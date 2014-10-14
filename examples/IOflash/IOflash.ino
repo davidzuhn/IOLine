@@ -24,7 +24,6 @@
  *
  */
 
-#include IOLINE_USES_IOX 1
 #include "IOLine.h"
 
 
