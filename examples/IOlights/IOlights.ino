@@ -25,7 +25,9 @@
  * version available to anyone else.  
  */
 
-#include <IOLine.h>
+#include "Wire.h"
+#include "MCP23017.h"
+#include "IOLine.h"
 #include <Metro.h>
 
 // change this to suit whatever address you have defined your IOX board as

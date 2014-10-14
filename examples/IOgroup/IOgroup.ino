@@ -10,7 +10,9 @@
  *
  */
 
-#include <IOLine.h>
+#include "Wire.h"
+#include "MCP23017.h"
+#include "IOLine.h"
 
 
 // Use all of the Arduino pins except for the serial console lines (0, 1)

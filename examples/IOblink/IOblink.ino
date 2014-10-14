@@ -24,8 +24,11 @@
  *
  */
 
-#include <IOLine.h>
+#include "Wire.h"
+#include "MCP23017.h"
+#include "IOLine.h"
 
+#define USE_IOX 0
 
 // change this to suit whatever address you have defined your IOX board as
 #define IOX_ADDRESS 0x20
@@ -34,7 +37,7 @@
 IOLine *outputs[] = {
     // Pin values are "normal" Arduino I/O lines, they're in whatever order
     // makes sense for you, instead of what makes sense for the computer
-    new Pin(8, OUTPUT),
+    new Pin(A5, OUTPUT),
     new Pin(A4, OUTPUT),
     new Pin(A3, OUTPUT),
     new Pin(A2, OUTPUT),
@@ -45,6 +48,15 @@ IOLine *outputs[] = {
     new Pin(11, OUTPUT),
     new Pin(10, OUTPUT),
 
+    new Pin(8, OUTPUT),
+    new Pin(7, OUTPUT),
+    new Pin(6, OUTPUT),
+    new Pin(5, OUTPUT),
+    new Pin(4, OUTPUT),
+    new Pin(3, OUTPUT),
+    new Pin(2, OUTPUT),
+
+#if USE_IOX
     // these next are defined in terms of the IOX i2c address (0x20-0x27), port # (0,1), and bit (0-7)
     new IOX(IOX_ADDRESS, 0, 3, OUTPUT),
     new IOX(IOX_ADDRESS, 0, 2, OUTPUT),
@@ -56,6 +68,7 @@ IOLine *outputs[] = {
     new IOX(IOX_ADDRESS, 1, 4, OUTPUT),
     new IOX(IOX_ADDRESS, 1, 3, OUTPUT),
     new IOX(IOX_ADDRESS, 1, 2, OUTPUT)
+#endif
 };
 
 #define outputCount NELEMENTS(outputs)

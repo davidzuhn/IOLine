@@ -12,20 +12,25 @@
  * version available to anyone else.
  */
 
-#include <IOLine.h>
+#include "Wire.h"
+#include "MCP23017.h"
+#include "IOLine.h"
+
 #include <Metro.h>
 
 // change this to suit whatever address you have defined your IOX board as
 #define IOX16 0x24
 #define IOX32 0x20
 
+// set to 1 if you want to use the IOX lines
+#define USE_IOX 0
+
 IOLine *outputs[] = {
 
     // yeah, I know, this looks funny, but it happens to match what my
     // hardware looks like today.   I needed to use A5 for an analog input,
     // and everything else stayed in place.  9 is already my pilot light.
-
-    new Pin(8, OUTPUT),
+    new Pin(A5, OUTPUT),
     new Pin(A4, OUTPUT),
     new Pin(A3, OUTPUT),
     new Pin(A2, OUTPUT),
@@ -36,6 +41,15 @@ IOLine *outputs[] = {
     new Pin(11, OUTPUT),
     new Pin(10, OUTPUT),
 
+    new Pin(8, OUTPUT),
+    new Pin(7, OUTPUT),
+    new Pin(6, OUTPUT),
+    new Pin(5, OUTPUT),
+    new Pin(4, OUTPUT),
+    new Pin(3, OUTPUT),
+    new Pin(2, OUTPUT),
+
+#if USE_IOX
     // half of my IOX16 is outputs, but not even divided between
     // ports 0 & 1 -- this is more for purposes of demonstration
     // than for idealized wiring configuration.  
@@ -74,6 +88,7 @@ IOLine *outputs[] = {
     new IOX(IOX32 + 1, 0, 0, OUTPUT),
     new IOX(IOX32 + 1, 1, 7, OUTPUT),
     new IOX(IOX32 + 1, 1, 6, OUTPUT),
+#endif // USE_IOX
 };
 
 #define outputCount NELEMENTS(outputs)
